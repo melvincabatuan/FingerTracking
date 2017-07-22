@@ -1,0 +1,91 @@
+//
+//  Camshift.cpp
+//  Tracking
+//
+//  Created by FloodSurge on 8/5/15.
+//  Copyright (c) 2015 FloodSurge. All rights reserved.
+//
+
+#include "Camshift.h"
+
+bool Camshift::initialize(const cv::Mat im_rgba, long topLeftx, long topLefty, long width, long height)
+{
+    selection = cv::Rect(topLeftx, topLefty, width, height);
+    cvtColor(im_rgba, hsv, CV_BGR2HSV); // cv::CV_BGRA2HSV doesn't exist!
+    
+    int vmin = 10,vmax = 256, smin = 30;
+    
+    inRange(hsv, Scalar(0,smin,MIN(vmin, vmax)), Scalar(180,256,MAX(vmin, vmax)), mask);
+    
+    int ch[] = {0,0};
+    hue.create(hsv.size(),hsv.depth());
+    mixChannels(&hsv, 1, &hue, 1, ch, 1);
+    
+    Mat roi(hue, selection), maskroi(mask, selection);
+    
+    float hranges[] = {0,180};
+    const float* phranges = hranges;
+    calcHist(&roi, 1, 0, maskroi, hist, 1, &hsize, &phranges);
+    
+    if( hist.empty() ) {
+    	isInit = false;    	
+    }
+    else {
+       isInit = true;
+       normalize(hist, hist, 0, 255, NORM_MINMAX);
+    } 
+    
+    return isInit;
+}
+
+bool Camshift::isInitialized() {
+    return isInit;
+}
+
+bool Camshift::processFrame(cv::Mat im_src, Mat &im_rgba)
+{
+	// cv::Mat image;
+    // cvtColor(im_src, image, CV_BGRA2BGR);
+    cvtColor(im_src, hsv, CV_BGR2HSV);
+    
+    int vmin = 10,vmax = 256, smin = 30;
+
+    inRange(hsv, Scalar(0,smin,MIN(vmin, vmax)), Scalar(180,256,MAX(vmin, vmax)), mask);
+    
+    int ch[] = {0,0};
+    hue.create(hsv.size(),hsv.depth());
+    mixChannels(&hsv, 1, &hue, 1, ch, 1);
+    float hranges[] = {0,180};
+    const float* phranges = hranges;
+    calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
+    backproj &= mask;
+    objectBox = CamShift(backproj, selection,
+                                    TermCriteria( TermCriteria::EPS | TermCriteria::COUNT, 10, 1 ));
+              
+    if( selection.area() <= 1 )
+    {
+        int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
+        selection = Rect(selection.x - r, selection.y - r,
+                                       selection.x + r, selection.y + r) &
+                                  Rect(0, 0, cols, rows);
+    }                
+    isProcessed = true;
+                                    
+	// Draw upright bounding box - mkc       
+    Point2f rect_points[4]; 
+    objectBox.points( rect_points );
+       for( int j = 0; j < 4; j++ ){
+           line( im_rgba, rect_points[j], rect_points[(j+1)%4], cv::Scalar(255, 0, 0), 3, 8 );
+    }
+    
+    return isProcessed;
+}
+
+Camshift::Camshift(void)
+{
+}
+
+
+Camshift::~Camshift(void)
+{   
+}

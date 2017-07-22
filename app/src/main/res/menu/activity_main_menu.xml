@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_rgb"
+        android:title="RGB"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_cmt"
+        android:title="CMT"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_kcf"
+        android:title="KCF"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_mil"
+        android:title="MIL"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_tld"
+        android:title="TLD"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_boost"
+        android:title="BOOST"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_median"
+        android:title="MEDIAN"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_camshift"
+        android:title="CAMSHIFT"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_color"
+        android:title="COLOR"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_ct"
+        android:title="CT"
+        app:showAsAction="ifRoom" />
+
+</menu>
